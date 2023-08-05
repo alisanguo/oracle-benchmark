@@ -27,17 +27,27 @@ func main() {
 	// 定义命令行参数
 	user := flag.String("user", "", "Oracle database user")
 	password := flag.String("password", "", "Oracle database password")
-	host := flag.String("host", "", "Oracle database host")
-	port := flag.Int("port", 0, "Oracle database port")
-	schema := flag.String("schema", "", "Oracle database schema")
+	//host := flag.String("host", "", "Oracle database host")
+	//port := flag.Int("port", 0, "Oracle database port")
+	//schema := flag.String("schema", "", "Oracle database schema")
+	connectString := flag.String("connectString", "", "Oracle database connectString")
 	concurrency := flag.Int("concurrency", 1, "Number of concurrent workers")
 	iterations := flag.Int("iterations", 1, "Number of query iterations per worker")
 	sqlFile := flag.String("sql_file", "", "Path to the SQL file")
 	flag.Parse()
 
 	// 检查必需的参数
-	if *user == "" || *password == "" || *host == "" || *port == 0 || *schema == "" || *sqlFile == "" {
-		log.Fatal("Data source and SQL file must be provided")
+	if *user == "" {
+		log.Fatal("Data source user must be provided")
+	}
+	if *password == "" {
+		log.Fatal("Data source password must be provided")
+	}
+	if *connectString == "" {
+		log.Fatal("Data source connectString must be provided")
+	}
+	if *sqlFile == "" {
+		log.Fatal("Data source sqlFile must be provided")
 	}
 
 	// 打开文件
@@ -48,7 +58,9 @@ func main() {
 	defer file.Close()
 
 	// 创建数据库连接池
-	dataSource := fmt.Sprintf(`user="%v" password="%v" connectString="%v:%v/%v"`, *user, *password, *host, *port, *schema)
+	//dataSource := fmt.Sprintf(`user="%v" password="%v" connectString="%v:%v/%v"`, *user, *password, *host, *port, *schema)
+	dataSource := fmt.Sprintf(`user="%v" password="%v" connectString="%v"`, *user, *password, *connectString)
+	log.Printf("connect to dataSource:%v", dataSource)
 	db, err := sql.Open(driverName, dataSource)
 	if err != nil {
 		log.Fatal("Failed to connect to the database:", err)
